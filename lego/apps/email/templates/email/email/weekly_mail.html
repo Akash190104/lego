@@ -1,0 +1,24 @@
+{% extends "email/base.html" %}
+
+{% block alert %}
+
+    <tr>
+        <td class="alert alert-warning">
+            Du har fått ukesmail
+        </td>
+    </tr>
+
+{% endblock %}
+
+{% block content %}
+<h1>Her er hva som er skjedd i uke {{week_number}}</h1>
+
+    <tr>
+        <td class="content-block">
+            Skjedd mass sjukt denne uka
+        </td>
+    </tr>
+
+
+
+{% endblock %}

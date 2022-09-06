@@ -1,0 +1,7 @@
+{% extends "email/base.txt" %}
+
+{% block content %}
+
+Hei, denne uka har det skjedd mye sjukt
+
+{% endblock %}
