@@ -2,6 +2,6 @@
 
 {% block content %}
 
-Hei, denne uka har det skjedd mye sjukt
+Hei, for å lese ukesmail er du nødt til å åpne mailen i noe som støtter html
 
 {% endblock %}

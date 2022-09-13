@@ -10,7 +10,11 @@ log = get_logger()
 
 @celery_app.task(serializer="json", bind=True, base=AbakusTask)
 def send_weekly_email(self, logger_context=None):
-    all_users = set(AbakusGroup.objects.get(name="Students").restricted_lookup()[0])
+    # Set to just PR and Webkom for testing purposes
+    all_users = set(
+        AbakusGroup.objects.get(name="Webkom").restricted_lookup()[0]
+        + AbakusGroup.objects.get(name="PR").restricted_lookup()[0]
+    )
 
     self.setup_logger(logger_context)
 
