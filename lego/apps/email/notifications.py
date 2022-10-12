@@ -39,10 +39,13 @@ class WeeklyNotification(Notification):
         yesterday_timestamp = timezone.now() - timedelta(days=1)
         last_sunday_timestamp = timezone.now() - timedelta(days=7)
 
-        weekly_tag = Tag.objects.get(tag="weekly")
-        todays_weekly = weekly_tag.article_set.filter(
-            created_at__gt=yesterday_timestamp
-        ).first()
+        weekly_tag = Tag.objects.filter(tag="weekly").first()
+        # Check if weekly tag exists so it does not crash if some idiot deletes the weekly tag
+        todays_weekly = (
+            weekly_tag.article_set.filter(created_at__gt=yesterday_timestamp).first()
+            if weekly_tag
+            else None
+        )
 
         week_number = timezone.now().isocalendar().week
 
@@ -62,7 +65,7 @@ class WeeklyNotification(Notification):
         )
 
         joblistings_last_week = Joblisting.objects.filter(
-            created_at__gt=last_sunday_timestamp
+            created_at__gt=last_sunday_timestamp, visible_from__lt=timezone.now()
         )
 
         joblistings = []
@@ -101,19 +104,18 @@ class WeeklyNotification(Notification):
                 }
             )
 
-        return self._delay_mail(
-            to_email=self.user.email,
-            subject=f"Ukesmail uke {week_number}",
-            html_template="email/email/weekly_mail.html",
-            plain_template="email/email/weekly_mail.txt",
-            context={
-                "events": events,
-                "todays_weekly": ""
-                if todays_weekly is None
-                else todays_weekly.get_absolute_url(),
-                "joblistings": joblistings,
-            },
-        )
-
-    def generate_push(self):
-        return self._delay_push(template="email/email/weekly_mail.txt", context={})
+        if events or joblistings or todays_weekly:
+            return self._delay_mail(
+                to_email=self.user.email,
+                subject=f"Ukesmail uke {week_number}",
+                html_template="email/email/weekly_mail.html",
+                plain_template="email/email/weekly_mail.txt",
+                context={
+                    "events": events,
+                    "todays_weekly": ""
+                    if todays_weekly is None
+                    else todays_weekly.get_absolute_url(),
+                    "joblistings": joblistings,
+                },
+            )
+        return
