@@ -4,8 +4,10 @@ from unittest.mock import patch
 from django.utils import timezone
 
 from lego.apps.email.notifications import WeeklyNotification
+from lego.apps.email.tasks import send_weekly_email
 from lego.apps.events.models import Pool
 from lego.apps.joblistings.models import Joblisting
+from lego.apps.notifications.models import NotificationSetting
 from lego.apps.users.models import User
 from lego.utils.test_utils import BaseTestCase
 
@@ -22,7 +24,7 @@ class WeeklyEmailTestCase(BaseTestCase):
     ]
 
     def setUp(self):
-        user = User.objects.all().first()
+        user = User.objects.get(pk=1)
         pool = Pool.objects.get(pk=1)
         pool.activation_date = timezone.now() + timedelta(days=1)
         pool.save()
@@ -54,6 +56,7 @@ class WeeklyEmailTestCase(BaseTestCase):
         joblisting_title = "Nye jobbannonser"
         self.assertEmailContains(send_mail_mock, joblisting_title)
         self.assertEmailContains(send_mail_mock, "BEKK")
+        self.assertTrue(send_mail_mock.called)
 
 
 @patch("lego.utils.email.django_send_mail")
@@ -121,10 +124,43 @@ class WeeklyEmailTestCaseNothing(WeeklyEmailTestCase):
         self.notifier = WeeklyNotification(user)
 
     def test_generate_weekly(self, send_mail_mock):
-        self.assertTrue(send_mail_mock.call_args is None)
+        self.assertFalse(send_mail_mock.called)
 
     def test_generate_events(self, send_mail_mock):
-        self.assertTrue(send_mail_mock.call_args is None)
+        self.assertFalse(send_mail_mock.called)
 
     def test_generate_joblistings(self, send_mail_mock):
-        self.assertTrue(send_mail_mock.call_args is None)
+        self.assertFalse(send_mail_mock.called)
+
+
+@patch("lego.utils.email.django_send_mail")
+class WeeklyEmailTaskTest(BaseTestCase):
+    fixtures = [
+        "test_users.yaml",
+        "test_articles.yaml",
+        "test_events.yaml",
+        "test_companies.yaml",
+        "test_abakus_groups.yaml",
+        "test_joblistings.yaml",
+        "test_notification_settings.yaml",
+        "test_memberships.yaml",
+    ]
+
+    def setUp(self):
+        pool = Pool.objects.get(pk=1)
+        pool.activation_date = timezone.now() + timedelta(days=1)
+        pool.save()
+        joblisting = Joblisting.objects.first()
+        joblisting.created_at = timezone.now() - timedelta(days=1)
+        joblisting.save()
+
+    def test_email_sent(self, send_mail_mock):
+        send_weekly_email()
+        self.assertTrue(send_mail_mock.called)
+
+    def test_notification_settings(self, send_mail_mock):
+        notification_setting = NotificationSetting.objects.get(pk=4)
+        notification_setting.enabled = False
+        notification_setting.save()
+        send_weekly_email()
+        self.assertFalse(send_mail_mock.called)

@@ -82,7 +82,6 @@ class WeeklyNotification(Notification):
         events = []
         for event in filtered_events:
             pools = []
-            print(event.title)
             for pool in event.pools.all():
                 pools.append(
                     {

@@ -545,3 +545,22 @@
     rght: 2
     tree_id: 19
     level: 0
+
+- model: users.abakusgroup
+  pk: 29
+  fields:
+    deleted: false
+    name: PR
+    description: ''
+    contact_email: ''
+    parent: 21
+    logo: null
+    type: komite
+    text: ''
+    permissions: '["/sudo/admin/companyinterest/", "/sudo/admin/surveys/", "/sudo/admin/submissions/"]'
+    show_badge: true
+    active: true
+    lft: 5
+    rght: 6
+    tree_id: 18
+    level: 2
