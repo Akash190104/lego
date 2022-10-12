@@ -8,7 +8,7 @@ from lego.apps.email.tasks import send_weekly_email
 from lego.apps.events.models import Pool
 from lego.apps.joblistings.models import Joblisting
 from lego.apps.notifications.models import NotificationSetting
-from lego.apps.users.models import User
+from lego.apps.users.models import AbakusGroup, User
 from lego.utils.test_utils import BaseTestCase
 
 
@@ -143,7 +143,6 @@ class WeeklyEmailTaskTest(BaseTestCase):
         "test_abakus_groups.yaml",
         "test_joblistings.yaml",
         "test_notification_settings.yaml",
-        "test_memberships.yaml",
     ]
 
     def setUp(self):
@@ -153,6 +152,8 @@ class WeeklyEmailTaskTest(BaseTestCase):
         joblisting = Joblisting.objects.first()
         joblisting.created_at = timezone.now() - timedelta(days=1)
         joblisting.save()
+        pr = AbakusGroup.objects.get(name="PR")
+        pr.add_user(User.objects.get(pk=10))
 
     def test_email_sent(self, send_mail_mock):
         send_weekly_email()

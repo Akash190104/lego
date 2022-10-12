@@ -1,6 +1,0 @@
-- model: users.Membership
-  pk: 1
-  fields:
-    user_id: 1 
-    abakus_group_id: 24
-    role: "leader"
