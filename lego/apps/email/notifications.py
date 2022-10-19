@@ -2,33 +2,14 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from lego.apps.events.constants import EVENT_TYPE_TRANSLATIONS
 from lego.apps.events.models import Event
+from lego.apps.joblistings.constants import JOB_TYPE_TRANSLATIONS
 from lego.apps.joblistings.models import Joblisting
 from lego.apps.notifications.constants import WEEKLY_MAIL
 from lego.apps.notifications.notification import Notification
 from lego.apps.permissions.constants import VIEW
 from lego.apps.tags.models import Tag
-
-JOB_TYPE_MAPPINGS = {
-    "summer_job": "Sommerjobb",
-    "part_time": "Deltid",
-    "full_time": "Fulltid",
-    "master_thesis": "Masteroppgave",
-    "other": "Annet",
-}
-
-EVENT_TYPE_MAPPINGS = {
-    "company_presentation": "Bedriftspresentasjon",
-    "lunch_presentation": "Lunchpresentasjon",
-    "alternative_presentation": "Alternativ presentasjon",
-    "course": "Kurs",
-    "breakfast_talk": "Frokostforedrag",
-    "kid_event": "KID-arrangement",
-    "party": "Fest",
-    "social": "Sosialt",
-    "other": "Annet",
-    "event": "Arrangement",
-}
 
 
 class WeeklyNotification(Notification):
@@ -74,7 +55,7 @@ class WeeklyNotification(Notification):
                 {
                     "id": joblisting.id,
                     "company_name": joblisting.company.name,
-                    "type": JOB_TYPE_MAPPINGS[joblisting.job_type],
+                    "type": JOB_TYPE_TRANSLATIONS[joblisting.job_type],
                     "title": joblisting.title,
                 }
             )
@@ -99,7 +80,7 @@ class WeeklyNotification(Notification):
                     "pools": pools,
                     "start_time": event.start_time.strftime("%d/%m kl %H:%M"),
                     "url": event.get_absolute_url(),
-                    "type": EVENT_TYPE_MAPPINGS[event.event_type],
+                    "type": EVENT_TYPE_TRANSLATIONS[event.event_type],
                 }
             )
 
