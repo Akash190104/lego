@@ -55,7 +55,7 @@ class WeeklyEmailTestCase(BaseTestCase):
     def test_generate_joblistings(self, send_mail_mock):
         joblisting_title = "Nye jobbannonser"
         self.assertEmailContains(send_mail_mock, joblisting_title)
-        self.assertEmailContains(send_mail_mock, "BEKK")
+        self.assertEmailContains(send_mail_mock, "Gutta Consulting")
         self.assertTrue(send_mail_mock.called)
 
 
@@ -81,7 +81,7 @@ class WeeklyEmailTestCaseNoWeekly(WeeklyEmailTestCase):
     def test_generate_joblistings(self, send_mail_mock):
         joblisting_title = "Nye jobbannonser"
         self.assertEmailContains(send_mail_mock, joblisting_title)
-        self.assertEmailContains(send_mail_mock, "BEKK")
+        self.assertEmailContains(send_mail_mock, "Gutta Consulting")
 
 
 @patch("lego.utils.email.django_send_mail")
@@ -109,7 +109,7 @@ class WeeklyEmailTestCaseNoEventsOrWeekly(WeeklyEmailTestCase):
     def test_generate_joblistings(self, send_mail_mock):
         joblisting_title = "Nye jobbannonser"
         self.assertEmailContains(send_mail_mock, joblisting_title)
-        self.assertEmailContains(send_mail_mock, "BEKK")
+        self.assertEmailContains(send_mail_mock, "Gutta Consulting")
 
 
 @patch("lego.utils.email.django_send_mail")
