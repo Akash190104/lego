@@ -27,7 +27,8 @@ from lego.apps.files.fields import ImageField
 from lego.apps.tags.serializers import TagSerializerMixin
 from lego.apps.users.constants import GROUP_GRADE
 from lego.apps.users.fields import AbakusGroupField
-from lego.apps.users.models import AbakusGroup
+from lego.apps.users.models import AbakusGroup, PhotoConsent
+from lego.apps.users.serializers.photo_consents import PhotoConsentSerializer
 from lego.apps.users.serializers.users import PublicUserSerializer
 from lego.utils.serializers import (
     BasisModelSerializer,
@@ -205,6 +206,7 @@ class EventReadUserDetailedSerializer(EventReadDetailedSerializer):
     spots_left = SpotsLeftField()
     pending_registration = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
+    photo_consents = serializers.SerializerMethodField()
 
     class Meta(EventReadDetailedSerializer.Meta):
         fields = EventReadDetailedSerializer.Meta.fields + (  # type: ignore
@@ -213,6 +215,7 @@ class EventReadUserDetailedSerializer(EventReadDetailedSerializer):
             "is_admitted",
             "spots_left",
             "pending_registration",
+            "photo_consents",
         )
 
     def get_price(self, obj):
@@ -234,6 +237,17 @@ class EventReadUserDetailedSerializer(EventReadDetailedSerializer):
             return RegistrationReadDetailedSerializer(reg).data
         except ObjectDoesNotExist:
             return None
+
+    def get_photo_consents(self, obj):
+        request = self.context.get("request", None)
+        if not request or not request.user.is_authenticated:
+            return []
+
+        if not obj.use_consent or len(obj.get_possible_pools(request.user)) == 0:
+            return []
+
+        pc = PhotoConsent.get_consents(self, request.user, time=obj.start_time)
+        return PhotoConsentSerializer(instance=pc, many=True).data
 
 
 class EventReadAuthUserDetailedSerializer(EventReadUserDetailedSerializer):
